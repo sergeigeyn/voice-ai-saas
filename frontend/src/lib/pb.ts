@@ -1,5 +1,7 @@
 import PocketBase from "pocketbase";
 
-export const PB_URL = process.env.NEXT_PUBLIC_PB_URL || "https://tasks-merry-random-season.trycloudflare.com";
-
-export const pb = new PocketBase(PB_URL);
+const url = process.env.NEXT_PUBLIC_PB_URL;
+if (!url) {
+  throw new Error("NEXT_PUBLIC_PB_URL is not set");
+}
+export const pb = new PocketBase(url);

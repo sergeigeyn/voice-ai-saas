@@ -62,7 +62,7 @@ export default function DashboardPage() {
       }
       const data = await res.json();
       setStatus("success");
-      setMessage(`Звонок запущен. room=${data.room_name ?? "—"}`);
+      setMessage("Звонок запущен. Ожидайте — мы перезвоним через несколько секунд.");
     } catch (err: unknown) {
       setStatus("error");
       setMessage(err instanceof Error ? err.message : "Не удалось инициировать звонок");
@@ -175,23 +175,23 @@ export default function DashboardPage() {
 
             <div className="rounded-2xl bg-white/[0.03] border border-white/10 p-6 backdrop-blur-xl">
               <h2 className="font-display text-lg font-semibold mb-1">Как это работает</h2>
-              <p className="text-[13px] text-white/50 mb-5">Под капотом — наш voice pipeline.</p>
+              <p className="text-[13px] text-white/50 mb-5">Четыре шага от заявки до результата.</p>
               <ol className="space-y-3 text-[13px] text-white/70">
                 <li className="flex gap-3">
                   <span className="size-5 rounded-full bg-violet-500/20 text-violet-300 flex items-center justify-center text-[11px] shrink-0">1</span>
-                  <span>Backend получает заявку и дёргает <code className="text-white/90 bg-white/5 px-1 rounded">initiate_call()</code>.</span>
+                  <span>Ты оставляешь заявку с номером.</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="size-5 rounded-full bg-blue-500/20 text-blue-300 flex items-center justify-center text-[11px] shrink-0">2</span>
-                  <span>LiveKit инициирует SIP-звонок через Asterisk → Plusofon.</span>
+                  <span>Мы инициируем исходящий звонок.</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="size-5 rounded-full bg-cyan-500/20 text-cyan-300 flex items-center justify-center text-[11px] shrink-0">3</span>
-                  <span>Когда трубку взяли — агент Алёна начинает разговор.</span>
+                  <span>Когда клиент берёт трубку — агент ведёт разговор.</span>
                 </li>
                 <li className="flex gap-3">
                   <span className="size-5 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-[11px] shrink-0">4</span>
-                  <span>Транскрипт и запись сохраняются (скоро).</span>
+                  <span>Запись и результат сохраняются в кабинете.</span>
                 </li>
               </ol>
             </div>
