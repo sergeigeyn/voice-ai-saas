@@ -292,10 +292,14 @@ function Footer() {
   return (
     <footer className="relative border-t border-white/[0.06] mt-12">
       <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2.5">
-          <div className="size-6 rounded-md bg-gradient-to-br from-violet-500 to-blue-500" />
-          <span className="font-display text-[13px] text-white/60">VoiceAI</span>
-        </div>
+        <a href="/" className="flex items-center gap-2.5">
+          <div className="relative size-7 rounded-lg bg-gradient-to-br from-violet-500 via-blue-500 to-cyan-400 shadow-lg shadow-violet-500/30">
+            <div className="absolute inset-0.5 rounded-[0.35rem] bg-[#050816] flex items-center justify-center">
+              <Mic className="size-3.5 text-white" strokeWidth={2.5} />
+            </div>
+          </div>
+          <span className="font-display font-semibold text-[14px] tracking-tight text-white/80">VoiceAI</span>
+        </a>
         <p className="text-[12px] text-white/30">© 2026 VoiceAI. Голос для бизнеса.</p>
       </div>
     </footer>
