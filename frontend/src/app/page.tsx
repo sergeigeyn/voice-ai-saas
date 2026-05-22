@@ -2,9 +2,12 @@
 
 import { motion } from "motion/react";
 import {
-  PhoneCall, PhoneIncoming, Mic, Brain, Languages, Gauge,
-  Headphones, Webhook, ArrowRight, Sparkles, Check,
+  PhoneCall, PhoneIncoming, Mic, Brain, Gauge,
+  Headphones, Webhook, ArrowRight, Sparkles, Check, Zap,
 } from "lucide-react";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { Marquee } from "@/components/ui/marquee";
 
 export default function Home() {
   return (
@@ -16,6 +19,8 @@ export default function Home() {
 
       <Header />
       <Hero />
+      <Metrics />
+      <ProvidersMarquee />
       <Features />
       <HowItWorks />
       <Pricing />
@@ -51,7 +56,7 @@ function Header() {
           <a href="/login" className="hidden sm:inline-block text-[13px] text-white/70 hover:text-white px-3 py-1.5 transition">
             Войти
           </a>
-          <a href="/signup" className="group relative text-[13px] font-medium px-4 py-2 rounded-lg bg-white text-slate-900 hover:bg-white/95 transition shadow-lg shadow-white/10">
+          <a href="/signup" className="text-[13px] font-medium px-4 py-2 rounded-lg bg-white text-slate-900 hover:bg-white/95 transition shadow-lg shadow-white/10">
             Попробовать
           </a>
         </div>
@@ -62,7 +67,7 @@ function Header() {
 
 function Hero() {
   return (
-    <section className="relative max-w-6xl mx-auto px-6 pt-24 pb-32">
+    <section className="relative max-w-6xl mx-auto px-6 pt-24 pb-24">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -95,12 +100,13 @@ function Hero() {
           Нативный русский голос, понимает прерывания, ведёт реальный диалог.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-          <a
-            href="/signup"
-            className="group inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white text-slate-900 font-medium text-[14px] hover:bg-white/95 transition shadow-2xl shadow-violet-500/20"
-          >
-            Попробовать бесплатно
-            <ArrowRight className="size-4 group-hover:translate-x-0.5 transition" />
+          <a href="/signup">
+            <ShimmerButton className="shadow-2xl">
+              <span className="inline-flex items-center gap-2 text-sm font-medium leading-none tracking-tight text-white">
+                Попробовать бесплатно
+                <ArrowRight className="size-4" />
+              </span>
+            </ShimmerButton>
           </a>
           <a
             href="#how"
@@ -109,17 +115,49 @@ function Hero() {
             Как это работает
           </a>
         </div>
-
-        <div className="mt-16 flex items-center justify-center gap-8 opacity-50 text-[11px] tracking-wide uppercase text-white/40">
-          <span>Plusofon</span>
-          <span className="size-1 rounded-full bg-white/20" />
-          <span>LiveKit</span>
-          <span className="size-1 rounded-full bg-white/20" />
-          <span>ElevenLabs</span>
-          <span className="size-1 rounded-full bg-white/20" />
-          <span>Groq</span>
-        </div>
       </motion.div>
+    </section>
+  );
+}
+
+function Metrics() {
+  const metrics = [
+    { value: 1, suffix: " сек", label: "Задержка ответа" },
+    { value: 95, suffix: "%", label: "Понимание речи" },
+    { value: 24, suffix: "/7", label: "Без сна и обедов" },
+    { value: 100, suffix: "%", label: "Российские номера" },
+  ];
+  return (
+    <section className="relative max-w-6xl mx-auto px-6 py-12 border-y border-white/[0.06] bg-white/[0.01]">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        {metrics.map((m) => (
+          <div key={m.label} className="text-center">
+            <div className="font-display text-4xl md:text-5xl font-semibold tracking-tight mb-1.5 bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent">
+              <NumberTicker value={m.value} className="text-transparent bg-gradient-to-b from-white to-white/60 bg-clip-text" />
+              <span>{m.suffix}</span>
+            </div>
+            <div className="text-[12px] uppercase tracking-wider text-white/40">{m.label}</div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function ProvidersMarquee() {
+  const providers = ["Plusofon", "LiveKit Cloud", "ElevenLabs", "Groq", "Deepgram", "Cloudflare", "Yandex Cloud", "OpenRouter"];
+  return (
+    <section className="relative py-16 overflow-hidden">
+      <p className="text-center text-[11px] uppercase tracking-wider text-white/30 mb-6">
+        Стек проверенных сервисов
+      </p>
+      <Marquee pauseOnHover className="[--duration:40s]">
+        {providers.map((p) => (
+          <div key={p} className="mx-8 font-display text-2xl font-medium text-white/40 hover:text-white/80 transition">
+            {p}
+          </div>
+        ))}
+      </Marquee>
     </section>
   );
 }
@@ -217,7 +255,7 @@ function Pricing() {
               <span className="text-[11px] font-medium tracking-wider uppercase px-2.5 py-1 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-200">
                 Бета
               </span>
-              <Sparkles className="size-4 text-violet-300" />
+              <Zap className="size-4 text-violet-300" />
             </div>
             <div className="flex items-baseline gap-1.5 mb-1">
               <span className="font-display text-5xl font-semibold">Бесплатно</span>
