@@ -1,0 +1,11 @@
+.npm-cache/
+.config_home/
+node_modules/
+.next/
+.env
+.env.local
+*.pyc
+__pycache__/
+venv/
+.venv/
+.DS_Store
