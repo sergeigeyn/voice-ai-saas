@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { NumberTicker } from "@/components/ui/number-ticker";
-import { Marquee } from "@/components/ui/marquee";
 
 export default function Home() {
   return (
@@ -20,7 +19,6 @@ export default function Home() {
       <Header />
       <Hero />
       <Metrics />
-      <ProvidersMarquee />
       <Features />
       <HowItWorks />
       <Pricing />
@@ -140,24 +138,6 @@ function Metrics() {
           </div>
         ))}
       </div>
-    </section>
-  );
-}
-
-function ProvidersMarquee() {
-  const providers = ["Plusofon", "LiveKit Cloud", "ElevenLabs", "Groq", "Deepgram", "Cloudflare", "Yandex Cloud", "OpenRouter"];
-  return (
-    <section className="relative py-16 overflow-hidden">
-      <p className="text-center text-[11px] uppercase tracking-wider text-white/30 mb-6">
-        Стек проверенных сервисов
-      </p>
-      <Marquee pauseOnHover className="[--duration:40s]">
-        {providers.map((p) => (
-          <div key={p} className="mx-8 font-display text-2xl font-medium text-white/40 hover:text-white/80 transition">
-            {p}
-          </div>
-        ))}
-      </Marquee>
     </section>
   );
 }
