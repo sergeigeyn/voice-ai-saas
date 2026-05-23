@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Mic, Phone, LogOut, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Mic, Phone, LogOut, Loader2, CheckCircle2, AlertCircle, ListTree } from "lucide-react";
 import { pb } from "@/lib/pb";
 
 type CallStatus = "idle" | "dialing" | "success" | "error";
@@ -16,6 +16,8 @@ export default function DashboardPage() {
 
   const [phone, setPhone] = useState("");
   const [leadName, setLeadName] = useState("");
+  const [scenarioId, setScenarioId] = useState<string>("");
+  const [scenarios, setScenarios] = useState<{ id: string; name: string; is_template?: boolean }[]>([]);
   const [status, setStatus] = useState<CallStatus>("idle");
   const [message, setMessage] = useState<string>("");
 
@@ -27,6 +29,17 @@ export default function DashboardPage() {
     const model = pb.authStore.model as { email?: string } | null;
     setUserEmail(model?.email ?? "user");
     setReady(true);
+    (async () => {
+      try {
+        const list = await pb.collection("scenarios").getFullList<{ id: string; name: string; is_template?: boolean }>({
+          sort: "-is_template,name",
+          fields: "id,name,is_template",
+        });
+        setScenarios(list);
+      } catch {
+        // тихо — селектор просто не покажет варианты
+      }
+    })();
   }, [router]);
 
   function handleLogout() {
@@ -54,7 +67,7 @@ export default function DashboardPage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${pb.authStore.token}`,
         },
-        body: JSON.stringify({ phone: normalized, lead_name: leadName || null }),
+        body: JSON.stringify({ phone: normalized, lead_name: leadName || null, scenario_id: scenarioId || null }),
       });
       if (!res.ok) {
         const err = await res.text();
@@ -143,6 +156,38 @@ export default function DashboardPage() {
                   className="w-full px-3.5 py-2.5 rounded-lg bg-white/[0.04] border border-white/10 text-white placeholder-white/30 outline-none focus:border-violet-400/50 transition"
                   placeholder="Иван"
                 />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-[12px] uppercase tracking-wider text-white/40">
+                    Сценарий (опционально)
+                  </label>
+                  <Link href="/dashboard/scenarios" className="text-[11px] text-white/50 hover:text-white inline-flex items-center gap-1">
+                    <ListTree className="size-3" /> Управление
+                  </Link>
+                </div>
+                <select
+                  value={scenarioId}
+                  onChange={(e) => setScenarioId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-lg bg-white/[0.04] border border-white/10 text-white outline-none focus:border-violet-400/50 transition"
+                >
+                  <option value="" className="bg-[#0a0e1f]">Без сценария — общий менеджер</option>
+                  {scenarios.length > 0 && (
+                    <optgroup label="Шаблоны" className="bg-[#0a0e1f]">
+                      {scenarios.filter((s) => s.is_template).map((s) => (
+                        <option key={s.id} value={s.id} className="bg-[#0a0e1f]">{s.name}</option>
+                      ))}
+                    </optgroup>
+                  )}
+                  {scenarios.some((s) => !s.is_template) && (
+                    <optgroup label="Мои" className="bg-[#0a0e1f]">
+                      {scenarios.filter((s) => !s.is_template).map((s) => (
+                        <option key={s.id} value={s.id} className="bg-[#0a0e1f]">{s.name}</option>
+                      ))}
+                    </optgroup>
+                  )}
+                </select>
               </div>
 
               <button
