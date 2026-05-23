@@ -99,23 +99,25 @@ export default function DashboardPage() {
         // тихо — селектор просто не покажет варианты
       }
     })();
-    (async () => {
-      try {
-        const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
-        const res = await fetch(`${API_URL}/api/calls`, {
-          headers: { Authorization: `Bearer ${pb.authStore.token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setCalls(data);
-        }
-      } catch {
-        // тихо
-      } finally {
-        setCallsLoading(false);
-      }
-    })();
+    loadCalls();
   }, [router]);
+
+  async function loadCalls() {
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+      const res = await fetch(`${API_URL}/api/calls`, {
+        headers: { Authorization: `Bearer ${pb.authStore.token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setCalls(data);
+      }
+    } catch {
+      // тихо
+    } finally {
+      setCallsLoading(false);
+    }
+  }
 
   function handleLogout() {
     pb.authStore.clear();
@@ -151,6 +153,8 @@ export default function DashboardPage() {
       const data = await res.json();
       setStatus("success");
       setMessage("Звонок запущен. Ожидайте — мы перезвоним через несколько секунд.");
+      // обновляем список через 1.5с (чтобы preliminary запись точно записалась)
+      setTimeout(() => { void loadCalls(); }, 1500);
     } catch (err: unknown) {
       setStatus("error");
       setMessage(err instanceof Error ? err.message : "Не удалось инициировать звонок");
