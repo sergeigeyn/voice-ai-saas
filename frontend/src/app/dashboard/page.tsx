@@ -4,10 +4,67 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "motion/react";
-import { Mic, Phone, LogOut, Loader2, CheckCircle2, AlertCircle, ListTree } from "lucide-react";
+import { Mic, Phone, LogOut, Loader2, CheckCircle2, AlertCircle, ListTree, ChevronRight } from "lucide-react";
 import { pb } from "@/lib/pb";
 
 type CallStatus = "idle" | "dialing" | "success" | "error";
+
+type CallItem = {
+  id: string;
+  phone: string;
+  lead_name?: string;
+  direction: string;
+  status: string;
+  duration?: number;
+  started_at?: string;
+  ended_at?: string;
+  scenario_name?: string;
+};
+
+
+function statusLabel(s: string): string {
+  return {
+    initiated: "набор",
+    ringing: "звонит",
+    answered: "идёт",
+    ended: "завершён",
+    failed: "не отвечает",
+  }[s] ?? s;
+}
+
+function statusBadge(s: string): string {
+  return {
+    initiated: "bg-blue-500/15 text-blue-300 border border-blue-500/20",
+    ringing: "bg-blue-500/15 text-blue-300 border border-blue-500/20",
+    answered: "bg-violet-500/15 text-violet-300 border border-violet-500/20",
+    ended: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/20",
+    failed: "bg-white/5 text-white/40 border border-white/10",
+  }[s] ?? "bg-white/5 text-white/40 border border-white/10";
+}
+
+function statusDot(s: string): string {
+  return {
+    initiated: "bg-blue-400",
+    ringing: "bg-blue-400 animate-pulse",
+    answered: "bg-violet-400 animate-pulse",
+    ended: "bg-emerald-400",
+    failed: "bg-white/30",
+  }[s] ?? "bg-white/30";
+}
+
+function formatDate(iso?: string): string {
+  if (!iso) return "—";
+  const d = new Date(iso.replace(" ", "T"));
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleString("ru-RU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+}
+
+function formatDuration(sec: number): string {
+  if (sec < 60) return `${sec}с`;
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}м ${s}с`;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -18,6 +75,8 @@ export default function DashboardPage() {
   const [leadName, setLeadName] = useState("");
   const [scenarioId, setScenarioId] = useState<string>("");
   const [scenarios, setScenarios] = useState<{ id: string; name: string; is_template?: boolean }[]>([]);
+  const [calls, setCalls] = useState<CallItem[]>([]);
+  const [callsLoading, setCallsLoading] = useState(true);
   const [status, setStatus] = useState<CallStatus>("idle");
   const [message, setMessage] = useState<string>("");
 
@@ -38,6 +97,22 @@ export default function DashboardPage() {
         setScenarios(list);
       } catch {
         // тихо — селектор просто не покажет варианты
+      }
+    })();
+    (async () => {
+      try {
+        const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+        const res = await fetch(`${API_URL}/api/calls`, {
+          headers: { Authorization: `Bearer ${pb.authStore.token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCalls(data);
+        }
+      } catch {
+        // тихо
+      } finally {
+        setCallsLoading(false);
       }
     })();
   }, [router]);
@@ -245,11 +320,62 @@ export default function DashboardPage() {
           <div className="mt-10 rounded-2xl bg-white/[0.03] border border-white/10 p-6 backdrop-blur-xl">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display text-lg font-semibold">История звонков</h2>
-              <span className="text-[12px] text-white/40">скоро</span>
+              {calls.length > 0 && (
+                <span className="text-[12px] text-white/40">{calls.length} последних</span>
+              )}
             </div>
-            <div className="text-center py-10 text-[13px] text-white/40">
-              Здесь появится список звонков, транскрипты и аналитика.
-            </div>
+            {callsLoading ? (
+              <div className="text-center py-10">
+                <Loader2 className="size-5 animate-spin text-white/40 mx-auto" />
+              </div>
+            ) : calls.length === 0 ? (
+              <div className="text-center py-10 text-[13px] text-white/40">
+                Пока пусто. Сделай первый тестовый звонок выше.
+              </div>
+            ) : (
+              <div className="divide-y divide-white/5">
+                {calls.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/dashboard/calls/${c.id}`}
+                    className="flex items-center justify-between py-3 -mx-2 px-2 rounded-lg hover:bg-white/[0.02] transition group"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <span className={`shrink-0 size-2 rounded-full ${statusDot(c.status)}`} />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 text-[14px] truncate">
+                          <span className="font-mono text-white/85">{c.phone}</span>
+                          {c.lead_name && (
+                            <span className="text-white/50">· {c.lead_name}</span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 text-[12px] text-white/40 truncate">
+                          <span>{formatDate(c.started_at)}</span>
+                          {c.scenario_name && (
+                            <>
+                              <span>·</span>
+                              <span>{c.scenario_name}</span>
+                            </>
+                          )}
+                          {c.duration ? (
+                            <>
+                              <span>·</span>
+                              <span>{formatDuration(c.duration)}</span>
+                            </>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className={`text-[11px] uppercase tracking-wider px-2 py-0.5 rounded ${statusBadge(c.status)}`}>
+                        {statusLabel(c.status)}
+                      </span>
+                      <ChevronRight className="size-4 text-white/30 group-hover:text-white/70 transition" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
         </motion.div>
       </div>
