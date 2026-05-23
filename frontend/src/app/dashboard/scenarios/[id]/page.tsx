@@ -55,7 +55,7 @@ export default function ScenarioEditPage() {
   }, [id, router]);
 
   const isTemplate = !!scenario?.is_template;
-  const isMine = scenario?.user === (pb.authStore.model as { id?: string } | null)?.id;
+  const isMine = scenario?.user === (pb.authStore.record as { id?: string } | null)?.id;
   const readOnly = isTemplate || !isMine;
 
   async function handleSave(e: React.FormEvent) {
@@ -94,6 +94,25 @@ export default function ScenarioEditPage() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[#050816]">
         <Loader2 className="size-6 animate-spin text-white/40" />
+      </main>
+    );
+  }
+
+  if (!scenario) {
+    return (
+      <main className="min-h-screen bg-[#050816] flex items-center justify-center px-6">
+        <div className="text-center max-w-md">
+          <h1 className="font-display text-2xl font-semibold mb-3">Сценарий не найден</h1>
+          <p className="text-[14px] text-white/50 mb-6">
+            {error ?? "Возможно, он был удалён или у тебя нет доступа."}
+          </p>
+          <Link
+            href="/dashboard/scenarios"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white text-slate-900 font-medium text-[13px] hover:bg-white/95 transition"
+          >
+            <ArrowLeft className="size-4" /> К сценариям
+          </Link>
+        </div>
       </main>
     );
   }

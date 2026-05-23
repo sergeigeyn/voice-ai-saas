@@ -30,7 +30,7 @@ export default function ScenarioNewPage() {
     setError(null);
     setSaving(true);
     try {
-      const userId = (pb.authStore.model as { id?: string } | null)?.id;
+      const userId = (pb.authStore.record as { id?: string } | null)?.id;
       if (!userId) throw new Error("Не залогинен");
       const rec = await pb.collection("scenarios").create({
         user: userId,

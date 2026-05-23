@@ -26,7 +26,7 @@ export default function DashboardPage() {
       router.replace("/login");
       return;
     }
-    const model = pb.authStore.model as { email?: string } | null;
+    const model = pb.authStore.record as { email?: string } | null;
     setUserEmail(model?.email ?? "user");
     setReady(true);
     (async () => {
